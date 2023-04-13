@@ -7,6 +7,10 @@
 
 int const allMovesMap = 0b111111111;
 
+int valueToMap(int value) {
+    return 1 << (value - 1);
+}
+
 SudokuMove::SudokuMove() {
     for (int i = 0; i < 9; ++i) {
         allowedColumns[i] = allMovesMap;
@@ -25,6 +29,20 @@ SudokuMove::SudokuMove(SudokuMove const & sudoku) {
     std::copy(&sudoku.allowedColumns[0], &sudoku.allowedColumns[0] + 9, &allowedColumns[0]);
     std::copy(&sudoku.allowedGroups[0][0], &sudoku.allowedGroups[0][0] + 3*3, &allowedGroups[0][0]);
     std::copy(&sudoku.taken[0], &sudoku.taken[0] + 9, &taken[0]);
+}
+
+SudokuMove::SudokuMove(const std::shared_ptr<SudokuMove> &parent, int x, int y, int value) : SudokuMove(*parent) {
+    moveX = x;
+    moveY = y;
+    moveValue = value;
+    this->parent = parent;
+
+    int map = valueToMap(value);
+
+    allowedRows[y] &= ~map;
+    allowedColumns[x] &= ~map;
+    allowedGroups[x / 3][y / 3] &= ~map;
+    taken[x] |= (1 << y);
 }
 
 void SudokuMove::print(std::ostream & os) const {
@@ -58,11 +76,6 @@ bool SudokuMove::isSolved() const {
     return true;
 }
 
-int valueToMap(int value) {
-    return 1 << (value - 1);
-}
-
-
 bool SudokuMove::isMoveAllowed(int x, int y) const {
    return (taken[x] & (1 << y)) == 0;
 }
@@ -73,16 +86,13 @@ bool SudokuMove::isMoveAllowed(int x, int y, int value) const {
     return (allowedRows[y] & allowedColumns[x] & allowedGroups[x / 3][y / 3] & map) != 0;
 }
 
-SudokuMove::SudokuMove(const std::shared_ptr<SudokuMove> &parent, int x, int y, int value) : SudokuMove(*parent) {
-    moveX = x;
-    moveY = y;
-    moveValue = value;
-    this->parent = parent;
-
-    int map = valueToMap(value);
-
-    allowedRows[y] &= ~map;
-    allowedColumns[x] &= ~map;
-    allowedGroups[x / 3][y / 3] &= ~map;
-    taken[x] |= (1 << y);
+void SudokuMove::findNextAllowedMove(int & x, int & y) const {
+    for (; x < 9; x++) {
+        for (; y < 9; y++) {
+            if (isMoveAllowed(x, y)) {
+                return;
+            }
+        }
+        y = 0;
+    }
 }

@@ -10,9 +10,6 @@
 #include <memory>
 
 class SudokuMove {
-    int moveX = -1;
-    int moveY = -1;
-    int moveValue = -1;
     std::shared_ptr<SudokuMove> parent = nullptr;
 
     int taken[9] = {};
@@ -20,6 +17,10 @@ class SudokuMove {
     int allowedColumns[9] = {};
     int allowedGroups[3][3] = {};
 public:
+    int moveX = -1;
+    int moveY = -1;
+    int moveValue = -1;
+
     SudokuMove();
     SudokuMove(SudokuMove const & sudoku);
     SudokuMove(std::shared_ptr<SudokuMove> const & parent, int x, int y, int value);
@@ -28,6 +29,7 @@ public:
     bool isSolved() const;
     bool isMoveAllowed(int x, int y) const;
     bool isMoveAllowed(int x, int y, int value) const;
+    void findNextAllowedMove(int & x, int & y) const;
 };
 
 #endif //SUDOKU_SUDOKUMOVE_H

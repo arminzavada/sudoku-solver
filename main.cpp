@@ -1,20 +1,20 @@
 #include <iostream>
 #include <list>
 #include "SudokuMove.h"
-#include "SudokuSolver.h"
 #include "Timer.h"
+#include "ParallelSolver.h"
 
 void measureTime(std::string const & input) {
-    SudokuSolver map(input);
+    ParallelSolver map(input, 32);
 
     std::cout << "Measurement for " << input << " ";
     Timer::measure([&]() {
-        map.recursiveSolve();
+        map.solve();
     }, 10);
 }
 
 void solveAndPrint(std::string const & input) {
-    SudokuSolver map(input);
+    ParallelSolver map(input, 1);
 
     std::cout << "Initial configuration: " << std::endl;
 
@@ -22,7 +22,7 @@ void solveAndPrint(std::string const & input) {
 
     std::cout << "Running recursive solver ... " << std::endl << std::endl;
 
-    std::list<std::shared_ptr<SudokuMove>> solutions = map.recursiveSolve();
+    std::list<std::shared_ptr<SudokuMove>> solutions = map.solve();
 
     if (solutions.empty()) {
         std::cout << "There are no solutions for this initial configuration!" << std::endl;

@@ -10,12 +10,14 @@
 #include "SudokuMove.h"
 
 class SudokuSolver {
+protected:
     std::shared_ptr<SudokuMove> baseMove = std::make_shared<SudokuMove>();
 public:
     explicit SudokuSolver(std::string const & input);
 
     void print(std::ostream & os) const;
-    std::list<std::shared_ptr<SudokuMove>> recursiveSolve() const;
+
+    virtual std::list<std::shared_ptr<SudokuMove>> solve() = 0;
 };
 
 
