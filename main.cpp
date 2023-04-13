@@ -3,26 +3,27 @@
 #include "SudokuMove.h"
 #include "Timer.h"
 #include "ParallelSolver.h"
+#include "HybridSolver.h"
+#include "RecursiveSolver.h"
+#include <string>
+#include <fstream>
 
-void measureTime(std::string const & input) {
-    ParallelSolver map(input, 32);
-
+void measureTime(std::string const & input, std::unique_ptr<SudokuSolver> solver) {
     std::cout << "Measurement for " << input << " ";
+
     Timer::measure([&]() {
-        map.solve();
+        solver->solve();
     }, 10);
 }
 
-void solveAndPrint(std::string const & input) {
-    ParallelSolver map(input, 1);
+void solveAndPrint(std::unique_ptr<SudokuSolver> solver) {
+    std::cout << "Initial configuration: " << std::endl << std::endl;
 
-    std::cout << "Initial configuration: " << std::endl;
-
-    map.print(std::cout);
+    solver->print(std::cout);
 
     std::cout << "Running recursive solver ... " << std::endl << std::endl;
 
-    std::list<std::shared_ptr<SudokuMove>> solutions = map.solve();
+    std::list<std::shared_ptr<SudokuMove>> solutions = solver->solve();
 
     if (solutions.empty()) {
         std::cout << "There are no solutions for this initial configuration!" << std::endl;
@@ -35,11 +36,42 @@ void solveAndPrint(std::string const & input) {
     }
 }
 
-#include <string>
-#include <fstream>
+std::function<std::unique_ptr<SudokuSolver> (std::string const &)> constructSolverFactory(int argc, char *argv[]) {
+    if (argc == 3) {
+        return [](std::string const &input) { return std::make_unique<RecursiveSolver>(input); };
+    }
+
+    std::string name(argv[3]);
+
+    if (name == "recursive") {
+        return [](std::string const &input) { return std::make_unique<RecursiveSolver>(input); };
+    }
+
+    if (name == "parallel") {
+        int threads = 4;
+
+        if (argc == 5) {
+            threads = std::stoi(argv[4]);
+        }
+
+        return [threads](std::string const &input) { return std::make_unique<ParallelSolver>(input, threads); };
+    }
+
+    if (name == "hybrid") {
+        int magicNumber = 200;
+
+        if (argc == 5) {
+            magicNumber = std::stoi(argv[4]);
+        }
+
+        return [magicNumber](std::string const &input) { return std::make_unique<HybridSolver>(input, magicNumber); };
+    }
+
+    return [](std::string const &input) { return std::make_unique<RecursiveSolver>(input); };
+}
 
 int main(int argc, char *argv[]) {
-    if (argc != 3) {
+    if (argc < 3) {
         std::cout << "Please specify input file and process mode (measure or solveAndPrint)!" << std::endl;
         return 0;
     }
@@ -52,15 +84,17 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
+    auto factory = constructSolverFactory(argc, argv);
+
     std::ifstream infile(argv[1]);
     std::string line;
 
     while (std::getline(infile, line))
     {
         if (mode == "measure") {
-            measureTime(line);
+            measureTime(line, factory(line));
         } else {
-            solveAndPrint(line);
+            solveAndPrint(factory(line));
         }
     }
 
