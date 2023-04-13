@@ -10,6 +10,7 @@ RecursiveSolver::RecursiveSolver(const std::string &input) : SudokuSolver(input)
 
 void recursiveSolve(std::shared_ptr<SudokuMove> const & move, std::list<std::shared_ptr<SudokuMove>> & solutions, int x, int y) {
     if (move->isSolved()) {
+#pragma omp critical
         solutions.push_back(move);
         return;
     }

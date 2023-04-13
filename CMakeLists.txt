@@ -3,7 +3,7 @@ project(sudoku)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(sudoku main.cpp SudokuMove.cpp SudokuMove.h SudokuSolver.cpp SudokuSolver.h Timer.cpp Timer.h AutoCountableEvent.cpp AutoCountableEvent.h BlockingQueue.cpp BlockingQueue.h RecursiveSolver.cpp RecursiveSolver.h ParallelSolver.cpp ParallelSolver.h Step.cpp Step.h)
+add_executable(sudoku main.cpp SudokuMove.cpp SudokuMove.h SudokuSolver.cpp SudokuSolver.h Timer.cpp Timer.h AutoCountableEvent.cpp AutoCountableEvent.h BlockingQueue.cpp BlockingQueue.h RecursiveSolver.cpp RecursiveSolver.h ParallelSolver.cpp ParallelSolver.h Step.cpp Step.h HybridSolver.cpp HybridSolver.h)
 
 find_package(OpenMP)
 if(OpenMP_CXX_FOUND)
