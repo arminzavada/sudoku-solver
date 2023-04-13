@@ -14,6 +14,7 @@ protected:
     std::shared_ptr<SudokuMove> baseMove = std::make_shared<SudokuMove>();
 public:
     explicit SudokuSolver(std::string const & input);
+    virtual ~SudokuSolver() = default;
 
     void print(std::ostream & os) const;
 

@@ -9,10 +9,13 @@
 
 class RecursiveSolver : public SudokuSolver {
 public:
+    ~RecursiveSolver() override = default;
+
     explicit RecursiveSolver(std::string const & input);
 
-    virtual std::list<std::shared_ptr<SudokuMove>> solve();
+    std::list<std::shared_ptr<SudokuMove>> solve() override;
 };
 
+void recursiveSolve(std::shared_ptr<SudokuMove> const & move, std::list<std::shared_ptr<SudokuMove>> & solutions, int x, int y);
 
 #endif //SUDOKU_RECURSIVESOLVER_H
